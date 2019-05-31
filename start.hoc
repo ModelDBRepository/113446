@@ -1,0 +1,542 @@
+// xopen("$(NEURONHOME)/lib/hoc/noload.hoc")
+load_file("nrngui.hoc")
+
+ivoc_style("*font", "*Helvetica**--13*")
+
+strdef neuronstr, execstr
+
+// geometry
+
+create soma ,psoma
+create dendrite0, pdendrite0
+create dendrite1, pdendrite1
+create dendrite2, pdendrite2
+create dendrite3, pdendrite3
+create dendrite4, pdendrite4
+create dendrite5, pdendrite5
+create basdend,   pbasdend
+
+objectvar neuron, glia
+neuron = new SectionList()
+glia   = new SectionList()
+
+forall neuron.append()
+forsec "p" glia.append()
+forsec "p" neuron.remove()
+
+connect dendrite0(0), soma(1)
+connect dendrite1(0), dendrite0(1)
+connect dendrite2(0), dendrite1(1)
+connect dendrite3(0), dendrite2(1)
+connect dendrite4(0), dendrite3(1)
+connect dendrite5(0), dendrite4(1)
+connect soma(0), basdend(1)
+
+connect pdendrite0(0), psoma(1)
+connect pdendrite1(0), pdendrite0(1)
+connect pdendrite2(0), pdendrite1(1)
+connect pdendrite3(0), pdendrite2(1)
+connect pdendrite4(0), pdendrite3(1)
+connect pdendrite5(0), pdendrite4(1)
+connect psoma(0),      pbasdend(1)
+
+// membrane mechanisms
+
+access soma
+distance()
+
+forall {
+	insert leak
+	insert nakpump
+	Ra=100
+	insert tot
+}
+
+forsec neuron {
+	insert accum
+	setvolout_accum=.2
+	k1buf_accum=20
+	k2buf_accum=.5
+	tau_accum=100
+	setvolout_accum=0.2
+	setvolglia_accum=1
+
+	  km_k_nakpump=2
+	  km_na_nakpump=10
+	insert capump
+	scale_capump=4e-6
+	insert nax
+	imax_nax = 3.2
+}
+
+forsec glia {
+	insert getconc
+	insert kir
+	gbar_kir=.025
+	insert kdrglia
+	gkbar_kdrglia=.025
+	  km_k_nakpump=5
+	  km_na_nakpump=10
+}
+
+soma {
+	nseg=3 
+	L=30
+	diam(0:1)=10:6
+	insert nachan
+	  gnabar_nachan=.4
+	insert nap
+	  gnabar_nap=0.000125
+	insert ka
+	  gkbar_ka=.2
+	insert kdr
+	  gkbar_kdr=.2
+	insert sk
+	  gkbar_sk=0.001
+	insert cal
+	  gcalbar_cal=.001
+	insert cat
+	  gcatbar_cat=.0001
+	insert xiong
+	  g_xiong=.00
+}
+shiftm_nachan=-10
+dendrite0 {
+	nseg=3 
+	L=100
+	diam=4
+	insert kdr
+	  gkbar_kdr=.001
+	insert nap
+	  gnabar_nap=1e-6
+}
+
+dendrite1 {
+	nseg=3 
+	L=100
+	diam=4
+	insert nap
+	  gnabar_nap=0
+	insert kdr
+	  gkbar_kdr=.5
+	insert sk
+	  gkbar_sk=0.02
+	insert cal
+	  gcalbar_cal=.0001
+	insert cat
+	  gcatbar_cat=.0001
+	insert xiong
+	  g_xiong=.00
+	insert nmda
+	  gbar_nmda=0.0001
+}
+
+dendrite2 {
+	nseg=3 
+	L=100
+	diam=2
+	insert nap
+	  gnabar_nap=0
+	insert kdr
+	  gkbar_kdr=.5
+	insert sk
+	  gkbar_sk=0.02
+	insert cal
+	  gcalbar_cal=.0001
+	insert cat
+	  gcatbar_cat=.0001
+	insert xiong
+	  g_xiong=.00
+	insert nmda
+	  gbar_nmda=0.0001
+}
+
+dendrite3 {
+	nseg=3 
+	L=100
+	diam=2
+	insert nap
+	  gnabar_nap=0
+	insert kdr
+	  gkbar_kdr=.5
+	insert sk
+	  gkbar_sk=0.02
+	insert cal
+	  gcalbar_cal=.0001
+	insert cat
+	  gcatbar_cat=.0001
+	insert xiong
+	  g_xiong=.00
+	insert nmda
+	  gbar_nmda=0.0001
+}
+
+dendrite4 {
+	nseg=3 
+	L=100
+	diam=2
+}
+
+dendrite5 {
+	nseg=3 
+	L=200
+	diam=1
+}
+
+basdend {
+	nseg=3 
+	L=100
+	diam=3 
+}
+
+proc copydiam() {
+	forsec neuron {
+	  neuronstr=secname()
+	  sprint(execstr, "p%s.L=%s.L p%s.nseg=%s.nseg", neuronstr, neuronstr, neuronstr, neuronstr )
+	  execute(execstr)
+	  for (x) if (x !=0 && x!=1) {
+	    sprint(execstr, " p%s.diam(%g)=%s.diam(%g)", neuronstr, x, neuronstr, x)
+	    execute(execstr)
+	  }
+	}
+}
+
+copydiam()
+
+// connecting neuron to isvf to glia
+
+proc connectpointers() {
+forsec neuron {
+	neuronstr=secname()
+	for (x) if (x!=0||x!=1) {
+		sprint(execstr, "setpointer %s.ikg_accum(x), p%s.ik(x)", neuronstr,neuronstr)
+		execute(execstr)
+		sprint(execstr, "setpointer %s.inag_accum(x), p%s.ina(x)", neuronstr,neuronstr)
+		execute(execstr)
+		//sprint(execstr, "setpointer %s.icag_accum(x), p%s.ica(x)", neuronstr,neuronstr)
+		//execute(execstr)
+		sprint(execstr, "setpointer %s.iclg_accum(x), p%s.icl(x)", neuronstr,neuronstr)
+		execute(execstr)
+		sprint(execstr, "setpointer %s.iag_accum(x), p%s.ia(x)", neuronstr,neuronstr)
+		execute(execstr)
+		sprint(execstr, "setpointer %s.diamg_accum(x), p%s.diam(x)", neuronstr,neuronstr)
+		execute(execstr)
+
+		sprint(execstr, "setpointer p%s.kog_getconc(x), %s.ko(x)", neuronstr,neuronstr)
+		execute(execstr)
+		sprint(execstr, "setpointer p%s.naog_getconc(x), %s.nao(x)", neuronstr,neuronstr)
+		execute(execstr)
+		//sprint(execstr, "setpointer p%s.caog_getconc(x), %s.cao(x)", neuronstr,neuronstr)
+		//execute(execstr)
+		sprint(execstr, "setpointer p%s.clog_getconc(x), %s.clo(x)", neuronstr,neuronstr)
+		execute(execstr)
+		sprint(execstr, "setpointer p%s.aog_getconc(x), %s.ao(x)", neuronstr,neuronstr)
+		execute(execstr)
+
+		sprint(execstr, "setpointer p%s.kig_getconc(x), %s.kg_accum(x)", neuronstr,neuronstr)
+		execute(execstr)
+		sprint(execstr, "setpointer p%s.naig_getconc(x), %s.nag_accum(x)", neuronstr,neuronstr)
+		execute(execstr)
+		//sprint(execstr, "setpointer p%s.caig_getconc(x), %s.cag_accum(x)", neuronstr,neuronstr)
+		//execute(execstr)
+		sprint(execstr, "setpointer p%s.clig_getconc(x), %s.clg_accum(x)", neuronstr,neuronstr)
+		execute(execstr)
+		sprint(execstr, "setpointer p%s.aig_getconc(x), %s.ag_accum(x)", neuronstr,neuronstr)
+		execute(execstr)
+		}
+	}
+}
+
+connectpointers()
+
+
+// init waarden
+
+celsius  = 36
+v_init   =-70
+vglia    =-88
+shiftm_nachan=0
+shifth_nachan=10
+scaletaum_nachan=1
+scaletauh_nachan=2
+scaletaun_kdr=1.5
+shiftn_kdr=10
+
+//concentraties buiten
+ko0_k_ion    = 3.5
+nao0_na_ion  = 140
+ao0_a_ion    = 0
+cao0_ca_ion  = 1.5
+clo0_cl_ion  = nao0_na_ion + ko0_k_ion +2*cao0_ca_ion - ao0_a_ion
+osmout = clo0_cl_ion + ao0_a_ion + nao0_na_ion + ko0_k_ion + cao0_ca_ion
+
+//concentraties in neuron
+cai0_ca_ion  = 5e-5
+nai0_na_ion  = 10
+cli0_cl_ion  = clo0_cl_ion / exp( v_init / (1000*R*(celsius+273.11247574)/-FARADAY ) )
+ki0_k_ion    = ( osmout - 2*nai0_na_ion - 3*cai0_ca_ion)/2
+ai0_a_ion    = ki0_k_ion + nai0_na_ion +2*cai0_ca_ion - cli0_cl_ion  //regels ook in set()-proc veranderen
+
+//concentraties in glia
+setkg_accum  = 113.5
+setnag_accum = osmout/2 - setkg_accum //was 30
+setclg_accum = clo0_cl_ion / exp( vglia / (1000*R*(celsius+273.11247574)/-FARADAY ) )
+setag_accum  = setnag_accum + setkg_accum - setclg_accum  //regels ook in setglia()-proc veranderen
+
+proc set() {
+	access soma
+	rm=$1
+	init() //init met juiste concentraties
+
+	vrest=ecl
+	v_init=ecl
+	dr_na=vrest-ena
+	dr_k=vrest-ek
+	eqinit()
+	depvar gna, gk
+	eqn gk:: gk = 1/rm - gna
+	eqn gna:: gna = (-dr_k*(3/2)*gk)/dr_na
+	solve()
+
+	forsec neuron gk_leak=gk
+	forsec neuron gna_leak=gna
+
+	p_k=(1+km_k_nakpump/ko)^(-2)
+	p_na=(1+km_na_nakpump/nai)^(-3)
+	p_tot=p_k*p_na
+
+	forsec neuron totalpump_nakpump = (-gna_leak*dr_na)/(3*p_tot)
+
+	init() //init met juiste drijfkrachten voor g's
+
+	gtest=gk_leak
+	forsec neuron gk_leak-=(ik)/dr_k
+	print secname(), " ", gtest/gk_leak
+	gtest=gna_leak
+	forsec neuron gna_leak-=(ina)/dr_na
+	print gtest/gna_leak
+
+	ai0_a_ion = ki0_k_ion + nai0_na_ion +2*cai0_ca_ion - cli0_cl_ion
+	forsec neuron gcl_leak=5*gna_leak
+
+	print "gk=",gk_leak, "and gna=", gna_leak
+	print "p_k	 *	p_na 	 =   p_tot"
+	print p_k, p_na, p_tot
+	print "totalpump_nakpump=", totalpump_nakpump
+	print "rm=", 1/(gk_leak+gna_leak+gcl_leak)
+	// voor de menu's
+	setgkleak=soma.gk_leak
+	setgnaleak=soma.gna_leak
+	setgclleak=soma.gcl_leak
+	setpomp = soma.totalpump_nakpump
+	setgkleakd0=dendrite0.gk_leak
+	setgnaleakd0=dendrite0.gna_leak
+	setgkleakd1=dendrite1.gk_leak
+	setgnaleakd1=dendrite1.gna_leak
+	setgkleakdpas=dendrite4.gk_leak
+	setgnaleakdpas=dendrite4.gna_leak
+}
+
+proc setglia() {
+	init() //init conc ko voor pomp-set
+
+	access psoma
+	rm=$1
+	vglia=$2
+
+	e_naglia=nernst(setnag_accum,nao0_na_ion,1)
+	e_kglia=nernst(setkg_accum,ko0_k_ion,1)
+
+	forsec neuron setclg_accum = clo0_cl_ion / exp( vglia / (1000*R*(celsius+273.11247574)/-FARADAY ) )
+	forsec neuron setag_accum  = setnag_accum + setkg_accum - setclg_accum
+
+	dr_na=vglia-e_naglia
+	dr_k=vglia-e_kglia
+
+	eqinit()
+	depvar gna, gk
+	eqn gk:: gk = 1/rm - gna
+	eqn gna:: gna = (-dr_k*(3/2)*gk)/dr_na
+	solve()
+
+	forsec glia gk_leak=gk
+	forsec glia gna_leak=gna
+	p_k=(1+km_k_nakpump/ko0_k_ion)^(-2)
+	p_na=(1+km_na_nakpump/setnag_accum)^(-3)
+	p_tot=p_k*p_na
+	forsec glia totalpump_nakpump = (-gna_leak*dr_na)/(3*p_tot)
+	fcurrent()
+
+	init() //init met juiste drijfkrachten voor g's
+	gtest=gk_leak
+	forsec glia gk_leak-=(ik)/dr_k
+	print secname(), " ", gtest/gk_leak
+
+	forsec glia gcl_leak=10*gna_leak
+	print "gk=",gk_leak, "and gna=", gna_leak
+	print "p_k	 *	p_na 	 =   p_tot"
+	print p_k, p_na, p_tot
+	print "totalpump_nakpump=", totalpump_nakpump
+	print "rm=", 1/(gk_leak+gna_leak+gcl_leak)
+
+	setclg_accum = clo0_cl_ion / exp( vglia / (1000*R*(celsius+273.11247574)/-FARADAY ) )
+	setag_accum  = setnag_accum + setkg_accum - setclg_accum
+	v=vglia
+
+	fcurrent()
+	setgkglia=psoma.gk_leak
+	setgnaglia=psoma.gna_leak
+	setgclglia=psoma.gcl_leak
+	settotpumpglia = psoma.totalpump_nakpump
+}
+
+proc init() {
+	finitialize()
+	//init neuron
+	forsec neuron {
+	  v=v_init
+	}
+	// init glia
+	forsec glia {
+	  v=vglia
+	  nai=setnag_accum
+	  ki=setkg_accum
+	  cli=setclg_accum
+	  ai=setag_accum
+	}
+	fcurrent()
+}
+
+reduced_plot=0
+reduction=1
+
+// reduce number of points plotted per linetrace when in variable stepsize mode.
+proc reductionplot() {
+	xpanel("Reduction")
+	reduced_plot=1
+	xcheckbox("Reduced Plot?", &reduced_plot)
+	xvalue("reduction")
+	xpanel()
+}
+reductionplot()
+
+proc nrncontrolmenu() {
+    xpanel("RunControl")
+	xpvalue("Init", &v_init, 1, "stdinit()", 1)
+	xbutton("Init & Run", "stdinit () run()")
+	xbutton("Stop", "stoprun=1")
+xvalue("Continue til", "runStopAt", 1, "{continuerun(runStopAt) stoprun=1}", 1, 1)
+xvalue("Continue for", "runStopIn", 1, "{continuerun(t + runStopIn) stoprun=1}", 1,1)
+	xbutton("Single Step", "steprun()")
+	xvalue("t", "t", 2)
+	xvalue("Tstop", "tstop", 1, "tstop_changed()", 0, 1)
+	xpvalue("dt", &dt, 1, "setdt()")
+	xvalue("Points plotted/ms", "steps_per_ms", 1, "setdt()", 0, 1)
+	//stdrun_quiet=1
+	//xcheckbox("Quiet", &stdrun_quiet)
+	reduced_plot=1
+	xcheckbox("Reduced Plot?", &reduced_plot)
+	xvalue("reduction")
+	xpvalue("Real Time", &realtime)
+    xpanel()
+}
+
+proc continuerun() {local rt, rtstart, ts
+	realtime = 0  rt = screen_update_invl  rtstart = startsw() 
+	eventcount=0
+	eventslow=1
+	stoprun = 0
+	if (using_cvode_) {
+		cvode.event($1)
+		ts = $1 //
+	}
+	while(t < $1 && stoprun == 0) {
+		if (reduced_plot) { stepreduced()
+		}else{ step() }
+		realtime = startsw() - rtstart
+		//rt = stopsw()
+		if (rt > realtime) {
+			//realtime = rt
+			if (!stdrun_quiet) fastflushPlot()
+			doNotify()
+			if (realtime == 2 && eventcount > 50) {
+				eventslow = int(eventcount/50) + 1
+			}
+			eventcount = 0
+		}else{
+			eventcount = eventcount + 1
+			if ((eventcount%eventslow) == 0) {
+				doEvents()
+			}
+		}
+	}
+	flushPlot()
+	realtime = startsw() - rtstart
+}
+
+proc continuerun() {local rt, rtstart, ts
+	realtime = 0  rt = screen_update_invl  rtstart = startsw()
+	eventcount=0
+	eventslow=1
+	stoprun = 0
+	if (using_cvode_) {
+		cvode.event($1)
+		ts = $1
+		if (cvode.use_local_dt) {
+			cvode.solve(ts)
+			flushPlot()
+			realtime = startsw() - rtstart
+			return
+		}
+	}else{
+		ts = $1 - dt/2
+	}
+	while(t < ts && stoprun == 0) {
+		step()
+		realtime = startsw() - rtstart
+		if (realtime >= rt) {
+//			if (!stdrun_quiet) fastflushPlot()
+			screen_update()
+			//really compute for at least screen_update_invl
+			realtime = startsw() - rtstart
+			rt = realtime + screen_update_invl
+		}
+	}
+	if (using_cvode_ && stoprun == 0) { // handle the "tstop" event
+		step() // so all recordings take place at tstop
+	}
+	flushPlot()
+	realtime = startsw() - rtstart
+}
+
+
+proc step() {local i
+	if (using_cvode_) {
+	  advance()
+	}else for i=1,nstep_steprun {
+	advance()
+	}
+	Plot()
+}
+
+proc stepreduced() {local i
+	if (using_cvode_) {
+	advance()
+	  if ( abs(t-t_old) > reduction ) {
+	  t_old=t
+	  Plot()
+	  }
+	}else for i=1,nstep_steprun {
+	  advance()
+	Plot()
+	}
+}
+
+
+init()
+set(1e4,-70)
+setglia(7.5e2, -88)
+cvode.atolscale(&soma.v(.5),1e-2)
+xopen("graphs.ses")
+xopen("menuceiling.hoc")
+sm()

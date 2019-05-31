@@ -1,0 +1,376 @@
+
+objectvar tempobj
+objectvar vbox
+vbox = new VBox()
+
+proc initvalues() {
+access soma
+	setgkleak=	gk_leak
+	setgnaleak=	gna_leak
+	setgclleak=	gcl_leak
+	setpomp= 	totalpump_nakpump
+	setpompkmna=	km_na_nakpump
+	setpompkmk=	km_k_nakpump
+	setswelltau=	tau_accum
+
+	setvolisvf=	setvolout_accum
+	setvolglia=	setvolglia_accum
+	//setminisvf=	minisvf_iglia
+
+	setgkir=	psoma.gbar_kir
+	setgkdrglia=	psoma.gkbar_kdrglia
+	setgnaglia=	psoma.gna_leak
+	setgclglia=	psoma.gcl_leak
+	setvglia=	vglia
+	setkmkglia=	psoma.km_k_nakpump
+	setkmnaglia=	psoma.km_na_nakpump
+	settotpumpglia=	psoma.totalpump_nakpump
+	setcapomp= 	scale_capump
+	setinax=	imax_nax
+	setcao=		cao0_ca_ion
+	
+	setgnat=	gnabar_nachan
+	setshiftmnat=	shiftm_nachan
+	setshifthnat=	shifth_nachan
+	setgnap=	gnabar_nap
+	setgkdr=	gkbar_kdr
+	setgka=		gkbar_ka
+	setshiftmka=	shiftm_ka
+	setshifthka=	shifth_ka
+	setgsk=		soma.gkbar_sk
+	setgcal=	soma.gcalbar_cal
+	setgcat=	soma.gcatbar_cat
+	setgxiong=	soma.g_xiong
+	
+access dendrite0
+	setgnapd0=	gnabar_nap
+	setgkdrd0=	gkbar_kdr
+	setgnaleakd0=	gna_leak
+	setgkleakd0=	gk_leak
+
+
+access dendrite1
+	setgnapd1=	gnabar_nap
+	setgkdrd1=	gkbar_kdr
+	setgnmdad1=	gbar_nmda
+	settauactnmdad1=tau_act_nmda
+	setact01nmdad1=	act_01_nmda
+	setact99nmdad1=	act_99_nmda
+	settauinanmdad1=tau_ina_nmda
+	setina01nmdad1=	ina_01_nmda
+	setina99nmdad1=	ina_99_nmda
+	setgskd1=	dendrite1.gkbar_sk
+	setgcald1=	dendrite1.gcalbar_cal
+	setgcatd1=	dendrite1.gcatbar_cat
+	setgxiongd1=	dendrite1.g_xiong
+	setgnaleakd1=	gna_leak
+	setgkleakd1=	gk_leak
+	
+access dendrite4
+	setgnaleakdpas=	gna_leak
+	setgkleakdpas=	gk_leak
+
+}
+
+proc parameterbox() {
+	// let op verschillende aanroep voor zelfde par's soma & dend
+	xpanel("Membraan Parameters", 0)
+	xlabel("gehele cel")
+	xvalue("Cl-leak (S/cm2)", "setgclleak", 1,"set_gcl_leak()" )
+	xvalue("Na/K Pompsterkte","setpomp", 1,"set_pomp()", 0, 0 )
+	xvalue("Pomp Km_Na","setpompkmna", 1,"set_pomp_kmna()", 0, 0 )
+	xvalue("Pomp Km_K","setpompkmk", 1,"set_pomp_kmk()", 0, 0 )
+	xvalue("Ca2+ Pumprate","setcapomp", 1,"set_capomp()", 0, 0 )
+	xvalue("NaX max","setinax", 1,"set_inax()", 0, 0 )
+	xvalue("Ca2+o-init","setcao", 1,"set_cao()", 0, 0 )
+	xvalue("Swell Tau","setswelltau", 1,"set_swelltau()", 0, 0 )
+	xvalue("SetVol Isvf","setvolisvf", 1,"set_volisvf()", 0, 0 )
+	xvalue("SetVol Glia","setvolglia", 1,"set_volglia()", 0, 0 )
+	//xvalue("Min Isvf","setminisvf", 1,"set_minisvf()", 0, 0 )
+
+	xvalue("K-leak Glia","setgkglia", 1,"set_kglia()", 0, 0 )
+	xvalue("KIR-Glia","setgkir", 1,"set_kir()", 0, 0 )
+	xvalue("Kdr-Glia","setgkdrglia", 1,"set_kdrglia()", 0, 0 )
+	xvalue("Na-leak Glia","setgnaglia", 1,"set_naglia()", 0, 0 )
+	xvalue("Cl-leak Glia","setgclglia", 1,"set_clglia()", 0, 0 )
+	xvalue("Set V-Glia","setvglia", 1,"set_vglia()", 0, 0 )
+	xvalue("km_k_glia","setkmkglia", 1,"set_kmkglia()", 0, 0 )
+	xvalue("km_na_glia","setkmnaglia", 1,"set_kmnaglia()", 0, 0 )
+	xvalue("totpump_glia","settotpumpglia", 1,"set_totpumpglia()", 0, 0 )
+
+	//xvalue("Diff. co","setdif", 1,"set_dif()", 0, 0 )
+
+	xlabel("alleen soma")
+	xvalue("gNaT bar","setgnat", 1,"set_gnat()", 0, 0 )
+	xvalue("gNaTshiftm","setshiftmnat", 1,"set_shiftm_nat()", 0, 0 )
+	xvalue("gNaTshifth","setshifthnat", 1,"set_shifth_nat()", 0, 0 )
+	xvalue("gNaP bar","setgnap", 1,"set_gnap()", 0, 0 )
+	xvalue("gKdr bar","setgkdr", 1,"set_gkdr()", 0, 0 )
+	xvalue("gKa bar","setgka", 1,"set_gka()", 0, 0 )
+	xvalue("gSK bar","setgsk", 1,"set_gsk()", 0, 0 )
+	xvalue("gcal bar","setgcal", 1,"set_gcal()", 0, 0 )
+	xvalue("gcat bar","setgcat", 1,"set_gcat()", 0, 0 )
+	xvalue("K-leak  (S/cm2)", "setgkleak", 1,"set_gk_leak()" )
+	xvalue("Na-leak (S/cm2)", "setgnaleak", 1,"set_gna_leak()" )
+	
+	xlabel("dendrite0")
+	xvalue("gNaP bar","setgnapd0", 1,"set_gnap_d0()", 0, 0 )
+	xvalue("gKdr bar","setgkdrd0", 1,"set_gkdr_d0()", 0, 0 )
+	xvalue("K-leak  (S/cm2)", "setgkleakd0", 1,"set_gk_leakd0()" )
+	xvalue("Na-leak (S/cm2)", "setgnaleakd0", 1,"set_gna_leakd0()" )
+
+	xlabel("dendrieten1-3")
+	xvalue("gNaP bar","setgnapd1", 1,"set_gnap_d1()", 0, 0 )
+	xvalue("gKdr bar","setgkdrd1", 1,"set_gkdr_d1()", 0, 0 )
+	xvalue("gSK bar","setgskd1", 1,"set_gskd1()", 0, 0 )
+	xvalue("gcal bar","setgcald1", 1,"set_gcald1()", 0, 0 )
+	xvalue("gcat bar","setgcatd1", 1,"set_gcatd1()", 0, 0 )
+	xvalue("gNMDA bar","setgnmdad1", 1,"set_gnmda_d1()", 0, 0 )
+	xvalue("K-leak  (S/cm2)", "setgkleakd1", 1,"set_gk_leakd1()" )
+	xvalue("Na-leak (S/cm2)", "setgnaleakd1", 1,"set_gna_leakd1()" )
+
+	xlabel("passive dendrites")
+	xvalue("K-leak  (S/cm2)", "setgkleakdpas", 1,"set_gk_leakdpas()" )
+	xvalue("Na-leak (S/cm2)", "setgnaleakdpas", 1,"set_gna_leakdpas()" )
+	xpanel()
+}
+
+//------forall
+proc set_gcl_leak() {
+	forsec neuron gcl_leak =  setgclleak
+}
+proc set_pomp() {
+	forsec neuron totalpump_nakpump = setpomp
+}
+proc set_pomp_kmna() {
+	forsec neuron km_na_nakpump = setpompkmna
+}
+proc set_pomp_kmk() {
+	forsec neuron km_k_nakpump = setpompkmk
+}
+
+
+proc set_capomp() {
+	forsec neuron scale_capump = setcapomp
+}
+
+proc set_inax() {
+	forsec neuron imax_nax = setinax
+}
+proc set_cao() {
+	cao0_ca_ion = setcao
+}
+
+proc set_swelltau() {
+	forsec neuron tau_accum = setswelltau
+}
+proc set_volisvf() {
+	forsec neuron setvolout_accum = setvolisvf
+}
+proc set_volglia() {
+	forsec neuron setvolglia_accum = setvolglia
+}
+
+//proc set_minisvf() {
+// forall minisvf_iglia=setminisvf
+//}
+
+proc set_kir() {
+	forsec glia gbar_kir=setgkir
+}
+proc set_kdrglia() {
+	forsec glia gkbar_kdrglia=setgkdrglia
+}
+proc set_kglia() {
+	forsec glia gk_leak=setgkglia
+}
+
+proc set_naglia() {
+	forsec glia gna_leak=setgnaglia
+}
+proc set_clglia() {
+	forsec glia gcl_leak=setgclglia
+}
+proc set_vglia() {
+	vglia =setvglia
+}
+proc set_kmkglia() {
+	forsec glia km_k_nakpump=setkmkglia
+}
+proc set_kmnaglia() {
+	forsec glia km_na_nakpump=setkmnaglia
+}
+proc set_totpumpglia() {
+	forsec glia totalpump_nakpump=settotpumpglia
+}
+
+//------soma
+proc set_gk_leak() {
+	soma gk_leak = setgkleak
+}
+proc set_gna_leak() {
+	soma gna_leak =  setgnaleak
+}
+
+proc set_gnat() {
+	soma gnabar_nachan = setgnat
+}
+proc set_shiftm_nat() {
+	soma shiftm_nachan = setshiftmnat
+}
+proc set_shifth_nat() {
+	soma shifth_nachan = setshifthnat
+}
+proc set_gnap() {
+	soma gnabar_nap = setgnap
+}
+proc set_gkdr() {
+	soma gkbar_kdr = setgkdr
+}
+proc set_gka() {
+	soma gkbar_ka = setgka
+}
+proc set_shiftm_ka() {
+	soma shiftm_ka = setshiftmka
+}
+
+proc set_shifth_ka() {
+	soma shifth_ka = setshifthka
+}
+
+proc set_gsk() {
+	soma gkbar_sk = setgsk
+}
+proc set_gcal() {
+	soma gcalbar_cal = setgcal
+}
+proc set_gcat() {
+	soma gcatbar_cat = setgcat
+}
+proc set_gxiong() {
+	soma g_xiong = setgxiong
+}
+
+
+//------dendrite0
+proc set_gnap_d0() {
+	dendrite0 gnabar_nap = setgnapd0
+}
+proc set_gkdr_d0() {
+	dendrite0 gkbar_kdr = setgkdrd0
+}
+proc set_gk_leakd0() {
+	dendrite0 gk_leak = setgkleakd0
+}
+proc set_gna_leakd0() {
+	dendrite0 gna_leak =  setgnaleakd0
+}
+
+
+//------dendrite1-3
+
+proc set_gnap_d1() {
+	dendrite1 gnabar_nap = setgnapd1
+	dendrite2 gnabar_nap = setgnapd1
+	dendrite3 gnabar_nap = setgnapd1
+}
+proc set_gkdr_d1() {
+	dendrite1 gkbar_kdr = setgkdrd1
+	dendrite2 gkbar_kdr = setgkdrd1
+	dendrite3 gkbar_kdr = setgkdrd1
+}
+proc set_gskd1() {
+	dendrite1 gkbar_sk = setgskd1
+	dendrite2 gkbar_sk = setgskd1
+	dendrite3 gkbar_sk = setgskd1
+}
+
+proc set_gcald1() {
+	dendrite1 gcalbar_cal = setgcald1
+	dendrite2 gcalbar_cal = setgcald1
+	dendrite3 gcalbar_cal = setgcald1
+}
+proc set_gcatd1() {
+	dendrite1 gcatbar_cat = setgcatd1
+	dendrite2 gcatbar_cat = setgcatd1
+	dendrite3 gcatbar_cat = setgcatd1
+}
+
+proc set_gk_leakd1() {
+	dendrite1 gk_leak = setgkleakd1
+	dendrite2 gk_leak = setgkleakd1
+	dendrite3 gk_leak = setgkleakd1
+}
+proc set_gna_leakd1() {
+	dendrite1 gna_leak =  setgnaleakd1
+	dendrite2 gna_leak =  setgnaleakd1
+	dendrite3 gna_leak =  setgnaleakd1
+}
+
+
+proc set_gnmda_d1() {
+	dendrite1 gbar_nmda = setgnmdad1
+	dendrite2 gbar_nmda = setgnmdad1
+	dendrite3 gbar_nmda = setgnmdad1
+}
+proc set_tau_act_nmda_d1() {
+	dendrite1 tau_act_nmda = settauactnmdad1
+	dendrite2 tau_act_nmda = settauactnmdad1
+	dendrite3 tau_act_nmda = settauactnmdad1
+}
+proc set_act_01_nmda_d1() {
+	dendrite1 act_01_nmda = setact01nmdad1
+	dendrite2 act_01_nmda = setact01nmdad1
+	dendrite3 act_01_nmda = setact01nmdad1
+}
+proc set_act_99_nmda_d1() {
+	dendrite1 act_99_nmda = setact99nmdad1
+	dendrite2 act_99_nmda = setact99nmdad1
+	dendrite3 act_99_nmda = setact99nmdad1
+}
+proc set_tau_ina_nmda_d1() {
+	dendrite1 tau_ina_nmda = settauinanmdad1
+	dendrite2 tau_ina_nmda = settauinanmdad1
+	dendrite3 tau_ina_nmda = settauinanmdad1
+}
+proc set_ina_01_nmda_d1() {
+	dendrite1 ina_01_nmda = setina01nmdad1
+	dendrite2 ina_01_nmda = setina01nmdad1
+	dendrite3 ina_01_nmda = setina01nmdad1
+}
+proc set_ina_99_nmda_d1() {
+	dendrite1 ina_99_nmda = setina99nmdad1
+	dendrite2 ina_99_nmda = setina99nmdad1
+	dendrite3 ina_99_nmda = setina99nmdad1
+}
+
+proc set_gxiongd1() {
+	dendrite1 g_xiong = setgxiongd1
+	dendrite2 g_xiong = setgxiongd1
+	dendrite3 g_xiong = setgxiongd1
+}
+
+//------dendritepas
+proc set_gk_leakdpas() {
+	basdend gk_leak = setgkleakdpas
+	dendrite4 gk_leak = setgkleakdpas
+	dendrite5 gk_leak = setgkleakdpas
+}
+proc set_gna_leakdpas() {
+	basdend gna_leak =  setgnaleakdpas
+	dendrite4 gna_leak =  setgnaleakdpas
+	dendrite5 gna_leak =  setgnaleakdpas
+}
+
+
+proc endmenu() {
+	objectvar vbox
+}
+
+proc sm() { //startmenu
+	initvalues()
+	vbox.intercept(1)
+	parameterbox()
+	vbox.intercept(0)
+	vbox.map()
+}
