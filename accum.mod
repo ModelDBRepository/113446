@@ -94,7 +94,7 @@ ASSIGNED {
 	qag qcli qclo qclg qcai qcao qcag
 }
 
-STATE { na[3] k[3] a[3] cl[3] ca[2] (mM) <1e-4> vol[3] CaBuffer  Buffer pump (mol/cm2) pumpca  (mol/cm2) catot }
+STATE { na[3] k[3] a[3] cl[3] ca[3] (mM) <1e-4> vol[3] CaBuffer  Buffer pump (mol/cm2) pumpca  (mol/cm2) catot }
 LOCAL b, c, d
 
 BREAKPOINT {
