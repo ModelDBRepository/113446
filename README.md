@@ -35,6 +35,4 @@ Changelog
 ---------
 2023-04-20: fixed array variable dimension.
 
----
-
 2025-06-02: Standardized to Markdown.
